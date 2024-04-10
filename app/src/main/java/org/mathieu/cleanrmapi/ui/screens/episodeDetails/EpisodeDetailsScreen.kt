@@ -1,4 +1,4 @@
-package org.mathieu.cleanrmapi.ui.screens.characterdetails
+package org.mathieu.cleanrmapi.ui.screens.episodeDetails
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -25,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -45,52 +43,33 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
-import org.mathieu.cleanrmapi.domain.models.character.Character
-import org.mathieu.cleanrmapi.domain.models.episode.Episode
-import org.mathieu.cleanrmapi.ui.core.Destination
 import org.mathieu.cleanrmapi.ui.core.composables.PreviewContent
-import org.mathieu.cleanrmapi.ui.core.navigate
 import org.mathieu.cleanrmapi.ui.core.theme.Purple40
-import org.mathieu.cleanrmapi.ui.screens.characters.CharactersAction
 
-private typealias UIState = CharacterDetailsState
-private typealias UIAction = EpisodesAction
+
+private typealias UIState = EpisodeDetailsState
 
 @Composable
-fun CharacterDetailsScreen(
+fun EpisodeDetailsScreen(
     navController: NavController,
     id: Int
 ) {
-    val viewModel: CharacterDetailsViewModel = viewModel()
+    val viewModel: EpisodeDetailsViewModel = viewModel()
     val state by viewModel.state.collectAsState()
 
-    viewModel.init(characterId = id)
+    viewModel.init(episodeId = id)
 
-    LaunchedEffect(viewModel) {
-        viewModel.events
-            .onEach { event ->
-                if (event is Destination.EpisodeDetails)
-                    navController.navigate(destination = event)
-            }.collect()
-    }
-
-    CharacterDetailsContent(
+    EpisodeDetailsContent(
         state = state,
-        onClickBack = navController::popBackStack,
-        onAction = viewModel::handleAction
+        onClickBack = navController::popBackStack
     )
-
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-private fun CharacterDetailsContent(
+private fun EpisodeDetailsContent(
     state: UIState = UIState(),
-    onClickBack: () -> Unit = { },
-    onAction: (UIAction) -> Unit = { }
+    onClickBack: () -> Unit = { }
 ) = Scaffold(topBar = {
 
     Row(
@@ -135,15 +114,6 @@ private fun CharacterDetailsContent(
 
                 Box(Modifier.align(Alignment.TopCenter)) {
 
-                    SubcomposeAsyncImage(
-                        modifier = Modifier
-                            .blur(100.dp)
-                            .alpha(0.3f)
-                            .fillMaxWidth(),
-                        model = state.avatarUrl,
-                        contentDescription = null
-                    )
-
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
@@ -158,71 +128,32 @@ private fun CharacterDetailsContent(
                                 )
                             )
                     )
-
-
                 }
 
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    SubcomposeAsyncImage(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .shadow(3.dp),
-                        model = state.avatarUrl,
-                        contentDescription = null
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
 
                     Text(text = state.name)
 
-                    LazyColumn {
-                        items(state.episodes) {
-                            EpisodeCard(
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .clickable {
-                                        onAction(EpisodesAction.SelectedEpisode(it))
-                                    },
-                                episode = it)
-                        }
-                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(text = state.episode)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(text = state.airDate)
                 }
             }
         }
     }
 }
 
-@Composable
-private fun EpisodeCard(
-    modifier: Modifier, episode: Episode
-) =
-    Row(
-        modifier = modifier
-            .shadow(5.dp)
-            .background(Color.White)
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-        ,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-
-        Text(text = episode.airDate)
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Text(text = episode.episode)
-
-    }
-
 
 @Preview
 @Composable
-private fun CharacterDetailsPreview() = PreviewContent {
-    CharacterDetailsContent()
+private fun EpisodeDetailsPreview() = PreviewContent {
+    EpisodeDetailsContent()
 }
 

@@ -1,6 +1,9 @@
 package org.mathieu.cleanrmapi.data.local.objects
 
+import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.Ignore
 import io.realm.kotlin.types.annotations.PrimaryKey
 import org.mathieu.cleanrmapi.data.remote.responses.CharacterResponse
 import org.mathieu.cleanrmapi.data.repositories.tryOrNull
@@ -40,6 +43,7 @@ internal class CharacterObject: RealmObject {
     var locationId: Int = -1
     var image: String = ""
     var created: String = ""
+    var episode: RealmList<String> = realmListOf<String>()
 }
 
 
@@ -56,6 +60,7 @@ internal fun CharacterResponse.toRealmObject() = CharacterObject().also { obj ->
     obj.locationId = tryOrNull { location.url.split("/").last().toInt() } ?: -1
     obj.image = image
     obj.created = created
+    obj.episode.addAll(episode)
 }
 
 internal fun CharacterObject.toModel() = Character(
@@ -67,5 +72,6 @@ internal fun CharacterObject.toModel() = Character(
     gender = tryOrNull { CharacterGender.valueOf(gender) } ?: CharacterGender.Unknown,
     origin = originName to originId,
     location = locationName to locationId,
-    avatarUrl = image
+    avatarUrl = image,
+    episode = episode
 )

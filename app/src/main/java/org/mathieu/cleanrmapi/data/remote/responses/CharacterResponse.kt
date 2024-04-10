@@ -29,9 +29,9 @@ internal data class CharacterResponse(
     val origin: CharacterLocationResponse,
     val location: CharacterLocationResponse,
     val image: String,
-    val episode: List<String>,
     val url: String,
     val created: String,
+    val episode: List<String>
 )
 
 @Serializable

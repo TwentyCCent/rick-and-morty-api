@@ -14,8 +14,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -93,6 +97,13 @@ private fun CharactersContent(
         contentAlignment = Alignment.Center
     ) {
         AnimatedContent(targetState = state.error != null, label = "") {
+            if(state.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(64.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    strokeWidth = ProgressIndicatorDefaults.CircularStrokeWidth
+                )
+            }
             state.error?.let { error ->
                 Text(
                     modifier = Modifier.padding(16.dp),
@@ -105,7 +116,7 @@ private fun CharactersContent(
                 )
             } ?: LazyColumn {
 
-                items(state.characters) {
+                itemsIndexed(state.characters) {index, it ->
                     CharacterCard(
                         modifier = Modifier
                             .padding(8.dp)
@@ -114,6 +125,9 @@ private fun CharactersContent(
                             },
                         character = it
                     )
+                    if(index == state.characters.size -1){
+                        onAction(CharactersAction.LoadMore)
+                    }
                 }
 
             }
